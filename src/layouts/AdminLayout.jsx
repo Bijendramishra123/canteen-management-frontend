@@ -1,7 +1,7 @@
 import React from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { FiHome, FiMenu, FiShoppingBag, FiLogOut } from 'react-icons/fi'
+import { FiHome, FiMenu, FiShoppingBag, FiLogOut, FiCalendar, FiGift } from 'react-icons/fi'
 import { useAuth } from '../hooks/useAuth'
 
 const AdminLayout = () => {
@@ -12,6 +12,8 @@ const AdminLayout = () => {
     { to: '/admin', icon: FiHome, label: 'Dashboard' },
     { to: '/admin/foods', icon: FiMenu, label: 'Manage Foods' },
     { to: '/admin/orders', icon: FiShoppingBag, label: 'Manage Orders' },
+    { to: '/admin/history', icon: FiCalendar, label: 'Order History' },
+    { to: '/admin/birthday-requests', icon: FiGift, label: 'Birthday Requests' },
   ]
   
   return (
@@ -19,8 +21,10 @@ const AdminLayout = () => {
       <div className="flex">
         <aside className="w-64 bg-white shadow-lg min-h-screen fixed">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-primary-600">Admin Panel</h2>
-            <p className="text-gray-600 mt-2">Welcome, {user?.name}</p>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Admin Panel
+            </h2>
+            <p className="text-gray-600 mt-2 text-sm">Welcome, {user?.name}</p>
           </div>
           
           <nav className="mt-8">
@@ -29,8 +33,8 @@ const AdminLayout = () => {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) => `
-                  flex items-center px-6 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors
-                  ${isActive ? 'bg-primary-50 text-primary-600 border-r-4 border-primary-600' : ''}
+                  flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors
+                  ${isActive ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : ''}
                 `}
               >
                 <item.icon className="w-5 h-5 mr-3" />

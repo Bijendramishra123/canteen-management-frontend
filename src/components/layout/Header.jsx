@@ -51,36 +51,47 @@ const Header = () => {
   }
 
   const navLinks = [
-    { to: '/', icon: FiHome, label: 'Home' },
-    { to: '/menu', icon: FiMenu, label: 'Menu' },
+    { to: '/', icon: FiHome, label: 'Home', color: 'from-blue-500 to-blue-600' },
+    { to: '/menu', icon: FiMenu, label: 'Menu', color: 'from-orange-500 to-red-500' },
   ]
 
   const authLinks = isAuthenticated && user?.role === 'admin'
-    ? [...navLinks, { to: '/admin', icon: FiGrid, label: 'Admin Dashboard' }]
+    ? [...navLinks, { to: '/admin', icon: FiGrid, label: 'Admin Dashboard', color: 'from-purple-500 to-pink-500' }]
     : isAuthenticated && user?.role === 'user'
-    ? [...navLinks, { to: '/orders', icon: FiPackage, label: 'My Orders' }]
+    ? [...navLinks, { to: '/orders', icon: FiPackage, label: 'My Orders', color: 'from-green-500 to-teal-500' }]
     : navLinks
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" onClick={() => setIsMobileMenuOpen(false)}>
-            CanteenHub
+          {/* Logo */}
+          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:scale-105 transition-transform duration-300" onClick={() => setIsMobileMenuOpen(false)}>
+            🍽️ CanteenHub
           </Link>
           
-          <nav className="hidden md:flex items-center space-x-6">
+          {/* Desktop Navigation with hover animations */}
+          <nav className="hidden md:flex items-center space-x-2">
             {authLinks.map((link) => (
-              <Link key={link.to} to={link.to} className="text-gray-700 hover:text-blue-600 transition-colors flex items-center gap-1">
-                <link.icon className="w-4 h-4" /> {link.label}
+              <Link
+                key={link.to}
+                to={link.to}
+                className="relative group px-4 py-2 text-gray-700 hover:text-white transition-all duration-300 rounded-lg overflow-hidden"
+              >
+                <span className={`absolute inset-0 bg-gradient-to-r ${link.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg`}></span>
+                <span className="relative z-10 flex items-center gap-2 group-hover:scale-105 transition-transform duration-300">
+                  <link.icon className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                  <span className="font-medium">{link.label}</span>
+                </span>
               </Link>
             ))}
           </nav>
           
+          {/* Right Section */}
           <div className="flex items-center space-x-4">
             {isAuthenticated && (
-              <Link to="/cart" className="relative" onClick={() => setIsMobileMenuOpen(false)}>
-                <FiShoppingCart className="w-6 h-6 text-gray-700 hover:text-blue-600 transition-colors" />
+              <Link to="/cart" className="relative group" onClick={() => setIsMobileMenuOpen(false)}>
+                <FiShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-blue-600 transition-all duration-300 group-hover:scale-110" />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                     {totalItems}
@@ -91,8 +102,11 @@ const Header = () => {
             
             {isAuthenticated ? (
               <div className="hidden md:block relative" ref={dropdownRef}>
-                <button onClick={handleProfileClick} className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors focus:outline-none">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <button
+                  onClick={handleProfileClick}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-all duration-300 hover:scale-105 focus:outline-none"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold group-hover:scale-110 transition-transform">
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span className="font-medium">{user?.name?.split(' ')[0] || 'User'}</span>
@@ -104,7 +118,9 @@ const Header = () => {
                     <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                       <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
                       <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
-                      <span className="inline-block mt-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full capitalize">{user?.role}</span>
+                      <span className="inline-block mt-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full capitalize">
+                        {user?.role}
+                      </span>
                     </div>
                     <div className="py-2">
                       <Link to="/profile" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setIsDropdownOpen(false)}>
@@ -119,22 +135,31 @@ const Header = () => {
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-3">
-                <Link to="/login" className="text-gray-600 hover:text-blue-600 transition-colors">Login</Link>
-                <Link to="/register" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">Sign Up</Link>
+                <Link to="/login" className="text-gray-600 hover:text-blue-600 transition-all duration-300 hover:scale-105">Login</Link>
+                <Link to="/register" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300">Sign Up</Link>
               </div>
             )}
             
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors mobile-menu-btn">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors mobile-menu-btn"
+            >
               {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>
           </div>
         </div>
         
+        {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div ref={mobileMenuRef} className="md:hidden mt-4 pt-4 border-t animate-fade-in">
             <nav className="flex flex-col space-y-3">
               {authLinks.map((link) => (
-                <Link key={link.to} to={link.to} className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-300 hover:scale-105"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   <link.icon className="w-5 h-5" /> {link.label}
                 </Link>
               ))}

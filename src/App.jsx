@@ -13,6 +13,8 @@ import Profile from './pages/Profile'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageFoods from './pages/admin/ManageFoods'
 import ManageOrders from './pages/admin/ManageOrders'
+import OrderHistory from './pages/admin/OrderHistory'
+import BirthdayRequests from './pages/admin/BirthdayRequests'
 import NotFound from './pages/NotFound'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 
@@ -65,6 +67,8 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="foods" element={<ManageFoods />} />
             <Route path="orders" element={<ManageOrders />} />
+            <Route path="history" element={<OrderHistory />} />
+            <Route path="birthday-requests" element={<BirthdayRequests />} />
           </Route>
           
           <Route path="*" element={<NotFound />} />

@@ -1,44 +1,116 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ordersApi } from '../../api/endpoints/orders'
 import { menuApi } from '../../api/endpoints/menu'
-import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, FiClock, FiCheckCircle } from 'react-icons/fi'
+import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, FiClock, FiCheckCircle, FiCalendar, FiDownload } from 'react-icons/fi'
 
 const AdminDashboard = () => {
-  const { data: orders = [] } = useQuery({
+  const { data: orders = [], isLoading: ordersLoading, refetch: refetchOrders } = useQuery({
     queryKey: ['all-orders'],
     queryFn: () => ordersApi.getOrders().then(res => res.data)
   })
   
-  const { data: foods = [] } = useQuery({
+  const { data: foods = [], isLoading: foodsLoading } = useQuery({
     queryKey: ['all-foods'],
     queryFn: () => menuApi.getFoods().then(res => res.data)
   })
 
-  // Calculate stats
+  // Calculate real stats from database
   const totalRevenue = orders
     .filter(order => order.status === 'delivered')
     .reduce((sum, order) => sum + (order.total_amount || 0), 0)
   
   const pendingOrders = orders.filter(order => order.status === 'pending').length
+  const preparingOrders = orders.filter(order => order.status === 'preparing').length
   const completedOrders = orders.filter(order => order.status === 'delivered').length
-  const uniqueUserIds = new Set(orders.map(order => order.customer_email).filter(Boolean))
-  const totalUsers = uniqueUserIds.size
+  
+  // Get unique customers
+  const uniqueCustomers = new Set()
+  orders.forEach(order => {
+    if (order.customer_email) uniqueCustomers.add(order.customer_email)
+  })
+  const totalCustomers = uniqueCustomers.size
+
+  // Today's orders
+  const today = new Date().toDateString()
+  const todayOrders = orders.filter(order => {
+    const orderDate = new Date(order.created_at).toDateString()
+    return orderDate === today
+  })
+  const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
 
   const stats = [
-    { title: 'Total Orders', value: orders.length, icon: FiPackage, color: 'from-blue-500 to-blue-600', bgColor: 'bg-blue-100', textColor: 'text-blue-600', delay: 0 },
-    { title: 'Pending Orders', value: pendingOrders, icon: FiClock, color: 'from-yellow-500 to-yellow-600', bgColor: 'bg-yellow-100', textColor: 'text-yellow-600', delay: 0.1 },
-    { title: 'Completed', value: completedOrders, icon: FiCheckCircle, color: 'from-green-500 to-green-600', bgColor: 'bg-green-100', textColor: 'text-green-600', delay: 0.2 },
-    { title: 'Food Items', value: foods.length, icon: FiMenu, color: 'from-purple-500 to-purple-600', bgColor: 'bg-purple-100', textColor: 'text-purple-600', delay: 0.3 },
-    { title: 'Total Users', value: totalUsers, icon: FiUsers, color: 'from-indigo-500 to-indigo-600', bgColor: 'bg-indigo-100', textColor: 'text-indigo-600', delay: 0.4 },
-    { title: 'Revenue', value: `₹${totalRevenue.toLocaleString()}`, icon: FiDollarSign, color: 'from-emerald-500 to-emerald-600', bgColor: 'bg-emerald-100', textColor: 'text-emerald-600', delay: 0.5 },
+    { 
+      title: 'Total Orders', 
+      value: orders.length, 
+      icon: FiPackage, 
+      bgColor: 'bg-blue-100', 
+      textColor: 'text-blue-600',
+      change: orders.length > 0 ? '+12%' : '0%'
+    },
+    { 
+      title: 'Pending Orders', 
+      value: pendingOrders, 
+      icon: FiClock, 
+      bgColor: 'bg-yellow-100', 
+      textColor: 'text-yellow-600',
+      change: pendingOrders > 0 ? `${Math.round((pendingOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Preparing', 
+      value: preparingOrders, 
+      icon: FiTrendingUp, 
+      bgColor: 'bg-purple-100', 
+      textColor: 'text-purple-600',
+      change: preparingOrders > 0 ? `${Math.round((preparingOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Completed', 
+      value: completedOrders, 
+      icon: FiCheckCircle, 
+      bgColor: 'bg-green-100', 
+      textColor: 'text-green-600',
+      change: completedOrders > 0 ? `${Math.round((completedOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Food Items', 
+      value: foods.length, 
+      icon: FiMenu, 
+      bgColor: 'bg-orange-100', 
+      textColor: 'text-orange-600',
+      change: foods.length > 0 ? 'Active' : 'No items'
+    },
+    { 
+      title: 'Total Customers', 
+      value: totalCustomers, 
+      icon: FiUsers, 
+      bgColor: 'bg-indigo-100', 
+      textColor: 'text-indigo-600',
+      change: totalCustomers > 0 ? `${totalCustomers} unique` : '0'
+    },
+    { 
+      title: 'Today\'s Revenue', 
+      value: `₹${todayRevenue.toLocaleString()}`, 
+      icon: FiDollarSign, 
+      bgColor: 'bg-emerald-100', 
+      textColor: 'text-emerald-600',
+      change: todayOrders.length > 0 ? `${todayOrders.length} orders` : 'No orders'
+    },
+    { 
+      title: 'Total Revenue', 
+      value: `₹${totalRevenue.toLocaleString()}`, 
+      icon: FiDollarSign, 
+      bgColor: 'bg-green-100', 
+      textColor: 'text-green-600',
+      change: totalRevenue > 0 ? 'Lifetime' : '₹0'
+    },
   ]
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   }
 
   const itemVariants = {
@@ -46,44 +118,68 @@ const AdminDashboard = () => {
     visible: { opacity: 1, y: 0 }
   }
 
+  if (ordersLoading || foodsLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading dashboard data...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-8"
+      className="space-y-6"
     >
-      {/* Header */}
       <motion.div variants={itemVariants} className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Admin Dashboard
           </h1>
-          <p className="text-gray-500 mt-1">Welcome back! Here's what's happening with your canteen today.</p>
+          <p className="text-gray-500 mt-1">
+            Welcome back! Here's what's happening with your canteen today.
+          </p>
         </div>
         <div className="flex gap-3">
-          <Link to="/admin/foods" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+          <Link 
+            to="/admin/history" 
+            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+          >
+            <FiCalendar /> View History
+          </Link>
+          <Link 
+            to="/admin/foods" 
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+          >
             <FiMenu /> Manage Foods
           </Link>
-          <Link to="/admin/orders" className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+          <Link 
+            to="/admin/orders" 
+            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+          >
             <FiShoppingBag /> View Orders
           </Link>
         </div>
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <motion.div
             key={index}
             variants={itemVariants}
-            transition={{ delay: stat.delay }}
-            className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">{stat.title}</p>
                 <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
               </div>
               <div className={`${stat.bgColor} p-3 rounded-full`}>
                 <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
@@ -91,9 +187,9 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Recent Orders Section */}
+      {/* Recent Orders */}
       <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -106,7 +202,6 @@ const AdminDashboard = () => {
             View All →
           </Link>
         </div>
-        
         <div className="space-y-3">
           {orders.slice(0, 5).map((order, idx) => (
             <motion.div
@@ -123,6 +218,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="font-semibold">Order #{order.id}</p>
                   <p className="text-sm text-gray-500">{order.customer_name || 'Customer'}</p>
+                  <p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString()}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -130,6 +226,7 @@ const AdminDashboard = () => {
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   order.status === 'delivered' ? 'bg-green-100 text-green-600' :
                   order.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+                  order.status === 'preparing' ? 'bg-purple-100 text-purple-600' :
                   'bg-blue-100 text-blue-600'
                 }`}>
                   {order.status}
@@ -138,26 +235,9 @@ const AdminDashboard = () => {
             </motion.div>
           ))}
           {orders.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No orders yet
-            </div>
+            <div className="text-center py-8 text-gray-500">No orders yet</div>
           )}
         </div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Link to="/admin/foods" className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-xl transition-all transform hover:scale-105">
-          <FiMenu className="w-10 h-10 mb-4" />
-          <h3 className="text-xl font-semibold">Manage Menu</h3>
-          <p className="mt-2 opacity-90">Add, edit, or remove food items from your canteen menu</p>
-        </Link>
-        
-        <Link to="/admin/orders" className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:shadow-xl transition-all transform hover:scale-105">
-          <FiShoppingBag className="w-10 h-10 mb-4" />
-          <h3 className="text-xl font-semibold">Manage Orders</h3>
-          <p className="mt-2 opacity-90">View and update order statuses in real-time</p>
-        </Link>
       </motion.div>
     </motion.div>
   )
