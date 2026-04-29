@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { motion } from 'framer-motion'
-import { FiUser, FiMail, FiLock, FiUserPlus, FiEye, FiEyeOff, FiCheckCircle, FiXCircle, FiGithub } from 'react-icons/fi'
+import { FiUser, FiMail, FiLock, FiUserPlus, FiEye, FiEyeOff, FiCheckCircle, FiXCircle } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
+import { FaFacebook } from 'react-icons/fa'
 import CanteenLogo from '../../components/ui/CanteenLogo'
 
 const Register = () => {
@@ -55,10 +56,10 @@ const Register = () => {
       <div className="animated-bg"></div>
       
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 text-6xl animate-float opacity-20">🍔</div>
-        <div className="absolute bottom-20 right-10 text-6xl animate-float opacity-20" style={{animationDelay: '1s'}}>🍕</div>
-        <div className="absolute top-40 right-20 text-5xl animate-float opacity-20" style={{animationDelay: '2s'}}>🥗</div>
-        <div className="absolute bottom-40 left-20 text-5xl animate-float opacity-20" style={{animationDelay: '1.5s'}}>🍜</div>
+        <div className="absolute top-20 left-10 text-6xl animate-float opacity-30">🍔</div>
+        <div className="absolute bottom-20 right-10 text-6xl animate-float opacity-30" style={{animationDelay: '1s'}}>🍕</div>
+        <div className="absolute top-40 right-20 text-5xl animate-float opacity-30" style={{animationDelay: '2s'}}>🥗</div>
+        <div className="absolute bottom-40 left-20 text-5xl animate-float opacity-30" style={{animationDelay: '1.5s'}}>🍜</div>
       </div>
 
       <motion.div
@@ -68,12 +69,12 @@ const Register = () => {
         className="glass-card w-full max-w-md p-8 relative z-10"
       >
         <div className="flex justify-center mb-6">
-          <CanteenLogo className="w-20 h-20" />
+          <CanteenLogo className="w-24 h-24" />
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-          <p className="text-gray-300">Join CanteenHub and order delicious food</p>
+          <h2 className="text-3xl font-bold text-dark mb-2">Create Account</h2>
+          <p className="text-muted">Join CanteenHub and order delicious food</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,7 +85,7 @@ const Register = () => {
               placeholder="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               required
             />
           </div>
@@ -96,7 +97,7 @@ const Register = () => {
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               required
             />
           </div>
@@ -108,13 +109,13 @@ const Register = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-12 py-3 bg-white/90 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
             >
               {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
             </button>
@@ -122,17 +123,19 @@ const Register = () => {
 
           {password && (
             <div className="space-y-1">
-              <div className="flex justify-between text-xs text-gray-400">
+              <div className="flex justify-between text-xs text-gray-500">
                 <span>Password Strength:</span>
-                <span>{passwordStrength.text}</span>
+                <span className={passwordStrength.color === 'bg-green-500' ? 'text-green-600' : passwordStrength.color === 'bg-yellow-500' ? 'text-yellow-600' : 'text-red-500'}>
+                  {passwordStrength.text}
+                </span>
               </div>
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                 <div className={`h-full ${passwordStrength.color} transition-all duration-300`} style={{ width: passwordStrength.width }}></div>
               </div>
               <div className="flex gap-2 text-xs">
-                <span className={password.length >= 8 ? 'text-green-400' : 'text-gray-500'}>✓ 8+ characters</span>
-                <span className={password.match(/[A-Z]/) && password.match(/[a-z]/) ? 'text-green-400' : 'text-gray-500'}>✓ Upper & Lowercase</span>
-                <span className={password.match(/[0-9]/) ? 'text-green-400' : 'text-gray-500'}>✓ Number</span>
+                <span className={password.length >= 8 ? 'text-green-600' : 'text-gray-400'}>✓ 8+ characters</span>
+                <span className={password.match(/[A-Z]/) && password.match(/[a-z]/) ? 'text-green-600' : 'text-gray-400'}>✓ Upper & Lowercase</span>
+                <span className={password.match(/[0-9]/) ? 'text-green-600' : 'text-gray-400'}>✓ Number</span>
               </div>
             </div>
           )}
@@ -144,15 +147,15 @@ const Register = () => {
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-12 py-3 bg-white/90 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               required
             />
             {confirmPassword && (
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                 {passwordsMatch && isPasswordValid ? (
-                  <FiCheckCircle className="w-5 h-5 text-green-400" />
+                  <FiCheckCircle className="w-5 h-5 text-green-500" />
                 ) : (
-                  <FiXCircle className="w-5 h-5 text-red-400" />
+                  <FiXCircle className="w-5 h-5 text-red-500" />
                 )}
               </div>
             )}
@@ -161,7 +164,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 animate-pulse-glow"
+            className="w-full bg-gradient-to-r from-sky-500 to-sky-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 animate-pulse-glow"
           >
             <FiUserPlus className="w-5 h-5" />
             {isLoading ? 'Creating Account...' : 'Sign Up'}
@@ -170,27 +173,27 @@ const Register = () => {
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/20"></div>
+            <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-transparent text-gray-400">Or sign up with</span>
+            <span className="px-4 bg-white text-gray-500">Or sign up with</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all duration-300">
+          <button className="flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300">
             <FcGoogle className="w-5 h-5" />
             Google
           </button>
-          <button className="flex items-center justify-center gap-2 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all duration-300">
-            <FiGithub className="w-5 h-5" />
-            GitHub
+          <button className="flex items-center justify-center gap-2 py-2.5 bg-[#1877F2] border border-[#1877F2] rounded-xl text-white hover:bg-[#166FE5] hover:shadow-md transition-all duration-300">
+            <FaFacebook className="w-5 h-5" />
+            Facebook
           </button>
         </div>
 
-        <p className="text-center text-gray-300">
+        <p className="text-center text-gray-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition">
+          <Link to="/login" className="text-sky-500 hover:text-sky-600 font-semibold transition">
             Sign In
           </Link>
         </p>
