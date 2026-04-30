@@ -75,147 +75,134 @@ const InfoPopup = ({ isOpen, onClose, type }) => {
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            initial={{ scale: 0.9, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 50 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="glass-card w-full max-w-2xl overflow-hidden"
+            exit={{ scale: 0.9, opacity: 0, y: 30 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative bg-white rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header with gradient */}
-            <div className={`bg-gradient-to-r ${data.color} p-6 text-white relative`}>
+            {/* Header */}
+            <div className={`sticky top-0 bg-gradient-to-r ${data.color} p-5 text-white rounded-t-2xl z-10`}>
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300"
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300"
               >
                 <FiX className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/20 rounded-2xl animate-float">
+              <div className="flex items-center gap-3 pr-8">
+                <div className="p-2 bg-white/20 rounded-xl">
                   {data.icon}
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">{data.title}</h2>
-                  <p className="text-white/80 mt-1">{data.description}</p>
+                  <p className="text-white/80 text-sm mt-0.5">{data.description}</p>
                 </div>
               </div>
             </div>
 
             {/* Body */}
-            <div className="p-6">
+            <div className="p-5 bg-white">
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-3 gap-3 mb-5">
                 {data.stats.map((stat, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="text-center p-3 rounded-xl bg-white/5 border border-white/10"
-                  >
-                    <div className="text-2xl mb-1">{stat.icon}</div>
-                    <div className="text-xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-400">{stat.label}</div>
-                  </motion.div>
+                  <div key={idx} className="text-center p-2 rounded-xl bg-gray-50 border border-gray-100">
+                    <div className="text-2xl mb-0.5">{stat.icon}</div>
+                    <div className="text-lg font-bold text-gray-800">{stat.value}</div>
+                    <div className="text-xs text-gray-500">{stat.label}</div>
+                  </div>
                 ))}
               </div>
 
-              {/* Service Time Progress Bar for Quick Service */}
+              {/* Key Features Heading */}
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="w-1 h-5 bg-sky-500 rounded-full"></span>
+                Key Features
+              </h3>
+
+              {/* Features */}
+              <div className="grid grid-cols-1 gap-2 mb-5">
+                {data.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-gray-700">
+                    <FiCheckCircle className="text-green-500 w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Service Time Progress Bar (only for service type) */}
               {type === 'service' && (
-                <motion.div 
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  animate={{ opacity: 1, scaleX: 1 }}
-                  className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10"
-                >
-                  <h3 className="text-lg font-semibold text-white mb-3 text-center">⏱️ Estimated Service Time</h3>
-                  <div className="space-y-3">
+                <div className="mb-5 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2 text-center">⏱️ Estimated Service Time</h3>
+                  <div className="space-y-2">
                     <div>
-                      <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-0.5">
                         <span>Order Placed</span>
                         <span>0 min</span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full w-0 bg-blue-400 rounded-full"></div>
                       </div>
                     </div>
                     <div>
-                      <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-0.5">
                         <span>Order Confirmed</span>
                         <span>2-3 min</span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full w-1/6 bg-yellow-400 rounded-full"></div>
                       </div>
                     </div>
                     <div>
-                      <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-0.5">
                         <span>Being Prepared</span>
                         <span>5-10 min</span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full w-1/3 bg-orange-400 rounded-full"></div>
                       </div>
                     </div>
                     <div>
-                      <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-0.5">
                         <span>Ready to Serve</span>
                         <span>10-15 min</span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full w-2/3 bg-green-400 rounded-full"></div>
                       </div>
                     </div>
                     <div>
-                      <div className="flex justify-between text-sm text-gray-300 mb-1">
+                      <div className="flex justify-between text-xs text-gray-600 mb-0.5">
                         <span>Served at Your Table</span>
                         <span>15-20 min</span>
                       </div>
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full w-full bg-blue-400 rounded-full"></div>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-4 text-center text-sm text-gray-300">
-                    🎯 Total Time: 15-20 minutes from order to table
+                  <div className="mt-2 text-center text-xs font-medium text-blue-600">
+                    🎯 Total Time: 15-20 minutes
                   </div>
-                </motion.div>
+                </div>
               )}
 
-              {/* Features */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-3">✨ Key Features</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {data.features.map((feature, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-center gap-2 text-gray-300"
-                    >
-                      <FiCheckCircle className="text-green-400 w-4 h-4" />
-                      <span className="text-sm">{feature}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
               {/* Decorative image */}
-              <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="text-4xl tracking-wider animate-float">
+              <div className="text-center p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="text-3xl tracking-wider">
                   {data.image}
                 </div>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 mt-1">
                   {type === 'service' ? 'Get your food served fresh at your table!' : 'Experience the best of CanteenHub!'}
                 </p>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10 flex justify-end">
+            <div className="sticky bottom-0 bg-white p-4 border-t border-gray-100 rounded-b-2xl">
               <button
                 onClick={onClose}
-                className={`px-6 py-2 rounded-xl bg-gradient-to-r ${data.color} text-white font-semibold hover:scale-105 transition-all duration-300`}
+                className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${data.color} text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-md`}
               >
                 Got it! 🎉
               </button>
