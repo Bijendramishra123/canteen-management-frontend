@@ -97,6 +97,123 @@ const AdminDashboard = () => {
       bgColor: 'bg-emerald-100', 
       textColor: 'text-emerald-600',
       change: todayOrders.length > 0 ? `${todayOrders.length} orders` : 'No orders'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import axios from 'axios'
+import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, FiClock, FiCheckCircle, FiCalendar, FiDownload } from 'react-icons/fi'
+
+// Direct API URL
+const API_URL = 'https://canteen-management-backend-vj7n.onrender.com/api'
+
+const AdminDashboard = () => {
+  const [orders, setOrders] = useState([])
+  const [foods, setFoods] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('access_token')
+      const headers = { Authorization: `Bearer ${token}` }
+      
+      const [ordersRes, foodsRes] = await Promise.all([
+        axios.get(`${API_URL}/orders`, { headers }),
+        axios.get(`${API_URL}/foods`, { headers })
+      ])
+      
+      setOrders(ordersRes.data)
+      setFoods(foodsRes.data)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Calculate real stats from database
+  const totalRevenue = orders
+    .filter(order => order.status === 'delivered')
+    .reduce((sum, order) => sum + (order.total_amount || 0), 0)
+  
+  const pendingOrders = orders.filter(order => order.status === 'pending').length
+  const preparingOrders = orders.filter(order => order.status === 'preparing').length
+  const completedOrders = orders.filter(order => order.status === 'delivered').length
+  
+  // Get unique customers
+  const uniqueCustomers = new Set()
+  orders.forEach(order => {
+    if (order.customer_email) uniqueCustomers.add(order.customer_email)
+  })
+  const totalCustomers = uniqueCustomers.size
+
+  // Today's orders
+  const today = new Date().toDateString()
+  const todayOrders = orders.filter(order => {
+    const orderDate = new Date(order.created_at).toDateString()
+    return orderDate === today
+  })
+  const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
+
+  const stats = [
+    { 
+      title: 'Total Orders', 
+      value: orders.length, 
+      icon: FiPackage, 
+      bgColor: 'bg-blue-100', 
+      textColor: 'text-blue-600',
+      change: orders.length > 0 ? '+12%' : '0%'
+    },
+    { 
+      title: 'Pending Orders', 
+      value: pendingOrders, 
+      icon: FiClock, 
+      bgColor: 'bg-yellow-100', 
+      textColor: 'text-yellow-600',
+      change: pendingOrders > 0 ? `${Math.round((pendingOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Preparing', 
+      value: preparingOrders, 
+      icon: FiTrendingUp, 
+      bgColor: 'bg-purple-100', 
+      textColor: 'text-purple-600',
+      change: preparingOrders > 0 ? `${Math.round((preparingOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Completed', 
+      value: completedOrders, 
+      icon: FiCheckCircle, 
+      bgColor: 'bg-green-100', 
+      textColor: 'text-green-600',
+      change: completedOrders > 0 ? `${Math.round((completedOrders/orders.length)*100)}%` : '0%'
+    },
+    { 
+      title: 'Food Items', 
+      value: foods.length, 
+      icon: FiMenu, 
+      bgColor: 'bg-orange-100', 
+      textColor: 'text-orange-600',
+      change: foods.length > 0 ? 'Active' : 'No items'
+    },
+    { 
+      title: 'Total Customers', 
+      value: totalCustomers, 
+      icon: FiUsers, 
+      bgColor: 'bg-indigo-100', 
+      textColor: 'text-indigo-600',
+      change: totalCustomers > 0 ? `${totalCustomers} unique` : '0'
+    },
+    { 
+      title: 'Today\'s Revenue', 
+      value: `₹${todayRevenue.toLocaleString()}`, 
+      icon: FiDollarSign, 
+      bgColor: 'bg-emerald-100', 
+      textColor: 'text-emerald-600',
+      change: todayOrders.length > 0 ? `${todayOrders.length} orders` : 'No orders'
     },
     { 
       title: 'Total Revenue', 
@@ -118,7 +235,7 @@ const AdminDashboard = () => {
     visible: { opacity: 1, y: 0 }
   }
 
-  if (ordersLoading || foodsLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -205,7 +322,7 @@ const AdminDashboard = () => {
         <div className="space-y-3">
           {orders.slice(0, 5).map((order, idx) => (
             <motion.div
-              key={order.id}
+              key={order.id || idx}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
