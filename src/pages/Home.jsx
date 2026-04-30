@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiArrowRight, FiCoffee, FiUsers, FiHeart, FiStar, FiClock, FiTruck } from 'react-icons/fi'
+import { FiArrowRight, FiCoffee, FiUsers, FiHeart, FiStar, FiClock } from 'react-icons/fi'
 import InfoPopup from '../components/ui/InfoPopup'
 
 const Home = () => {
@@ -13,7 +13,8 @@ const Home = () => {
       title: 'Delicious Food', 
       description: 'Freshly prepared meals made with love',
       type: 'food',
-      gradient: 'from-orange-400 to-red-500',
+      bgLight: 'bg-orange-50 dark:bg-orange-900/30',
+      textColor: 'text-orange-600 dark:text-orange-300',
       delay: 0
     },
     { 
@@ -21,7 +22,8 @@ const Home = () => {
       title: 'Quick Table Service', 
       description: 'Fresh food served at your table in minutes',
       type: 'service',
-      gradient: 'from-sky-400 to-blue-500',
+      bgLight: 'bg-sky-50 dark:bg-sky-900/30',
+      textColor: 'text-sky-600 dark:text-sky-300',
       delay: 0.1
     },
     { 
@@ -29,7 +31,8 @@ const Home = () => {
       title: 'Healthy Options', 
       description: 'Nutritious meals for everyone',
       type: 'healthy',
-      gradient: 'from-green-400 to-emerald-500',
+      bgLight: 'bg-green-50 dark:bg-green-900/30',
+      textColor: 'text-green-600 dark:text-green-300',
       delay: 0.2
     },
   ]
@@ -72,7 +75,7 @@ const Home = () => {
           variants={heroVariants}
           initial="hidden"
           animate="visible"
-          className="relative text-center py-20 md:py-28 bg-gradient-to-r from-sky-500 via-sky-400 to-red-400 rounded-3xl text-white overflow-hidden group"
+          className="relative text-center py-20 md:py-28 bg-gradient-to-r from-sky-600 via-sky-500 to-red-500 rounded-3xl text-white overflow-hidden group"
         >
           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-500"></div>
           <div className="absolute top-10 left-10 text-7xl animate-float opacity-20">🍔</div>
@@ -84,14 +87,14 @@ const Home = () => {
               transition={{ delay: 0.2, type: 'spring' }}
               className="inline-block mb-4"
             >
-              <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold">
+              <span className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-white">
                 🎉 Limited Time Offers 🎉
               </span>
             </motion.div>
-            <h1 className="text-5xl md:text-7xl font-bold mb-4 animate-float">
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 animate-float text-white">
               Welcome to <span className="text-yellow-300">CanteenHub</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white/90">
               Delicious food served fresh at your table with love
             </p>
             <Link
@@ -119,15 +122,15 @@ const Home = () => {
               whileHover={{ scale: 1.05, y: -8 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleCardClick(feature.type)}
-              className={`text-center p-8 bg-gradient-to-br ${feature.gradient} rounded-2xl shadow-xl cursor-pointer transition-all duration-300 group relative overflow-hidden`}
+              className={`text-center p-8 ${feature.bgLight} rounded-2xl shadow-lg cursor-pointer transition-all duration-300 group relative overflow-hidden border border-gray-100 dark:border-gray-700`}
             >
-              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/50 dark:from-white/0 dark:to-white/5 group-hover:opacity-100 transition-all duration-300"></div>
               <div className="relative z-10">
-                <feature.icon className="w-16 h-16 text-white mx-auto mb-4 animate-float" />
-                <h3 className="text-2xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-white/90">{feature.description}</p>
+                <feature.icon className={`w-16 h-16 ${feature.textColor} mx-auto mb-4 animate-float`} />
+                <h3 className={`text-2xl font-bold ${feature.textColor} mb-2`}>{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
                 <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <span className="text-white text-sm inline-flex items-center gap-1">
+                  <span className={`text-sm ${feature.textColor} inline-flex items-center gap-1 font-medium`}>
                     Click to learn more
                     <FiArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -146,15 +149,15 @@ const Home = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-6 px-4"
         >
           {[
-            { value: "500+", label: "Daily Orders", icon: FiClock },
-            { value: "50+", label: "Food Items", icon: FiCoffee },
-            { value: "10K+", label: "Happy Customers", icon: FiStar },
-            { value: "25+", label: "Dining Tables", icon: FiUsers },
+            { value: "500+", label: "Daily Orders", icon: FiClock, bgColor: "bg-sky-50 dark:bg-sky-900/30", iconColor: "text-sky-500 dark:text-sky-300" },
+            { value: "50+", label: "Food Items", icon: FiCoffee, bgColor: "bg-orange-50 dark:bg-orange-900/30", iconColor: "text-orange-500 dark:text-orange-300" },
+            { value: "10K+", label: "Happy Customers", icon: FiStar, bgColor: "bg-yellow-50 dark:bg-yellow-900/30", iconColor: "text-yellow-500 dark:text-yellow-300" },
+            { value: "25+", label: "Dining Tables", icon: FiUsers, bgColor: "bg-green-50 dark:bg-green-900/30", iconColor: "text-green-500 dark:text-green-300" },
           ].map((stat, idx) => (
-            <div key={idx} className="text-center p-6 bg-white rounded-2xl shadow-lg card-hover">
-              <stat.icon className="w-10 h-10 text-sky-500 mx-auto mb-3" />
-              <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
-              <p className="text-gray-500 text-sm">{stat.label}</p>
+            <div key={idx} className={`text-center p-6 ${stat.bgColor} rounded-2xl shadow-md card-hover`}>
+              <stat.icon className={`w-10 h-10 ${stat.iconColor} mx-auto mb-3`} />
+              <p className="text-3xl font-bold text-gray-800 dark:text-white">{stat.value}</p>
+              <p className="text-gray-500 dark:text-gray-300 text-sm">{stat.label}</p>
             </div>
           ))}
         </motion.section>
@@ -169,11 +172,11 @@ const Home = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-red-500/10 group-hover:opacity-100 transition-all duration-500"></div>
           <div className="relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to order?</h2>
-            <p className="text-lg mb-6">Browse our menu and place your order now!</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Ready to order?</h2>
+            <p className="text-lg mb-6 text-white/80">Browse our menu and place your order now!</p>
             <Link
               to="/menu"
-              className="inline-flex items-center bg-gradient-to-r from-sky-500 to-red-500 px-8 py-4 rounded-full font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 transform group"
+              className="inline-flex items-center bg-gradient-to-r from-sky-500 to-red-500 px-8 py-4 rounded-full font-semibold hover:shadow-2xl hover:scale-105 transition-all duration-300 transform group text-white"
             >
               View Menu
               <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -182,7 +185,6 @@ const Home = () => {
         </motion.section>
       </div>
 
-      {/* Popup */}
       <InfoPopup 
         isOpen={!!popupType}
         onClose={() => setPopupType(null)}

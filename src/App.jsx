@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { ThemeProvider } from './context/ThemeContext'
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
 import Home from './pages/Home'
@@ -34,47 +35,49 @@ const ProtectedRoute = ({ children, role }) => {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <Router>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="menu" element={<Menu />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="profile" element={
-              <ProtectedRoute>
-                <Profile />
+    <ThemeProvider>
+      <ErrorBoundary>
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="menu" element={<Menu />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="cart" element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              } />
+              <Route path="orders" element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+            </Route>
+            
+            <Route path="/admin" element={
+              <ProtectedRoute role="admin">
+                <AdminLayout />
               </ProtectedRoute>
-            } />
-            <Route path="cart" element={
-              <ProtectedRoute>
-                <Cart />
-              </ProtectedRoute>
-            } />
-            <Route path="orders" element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            } />
-          </Route>
-          
-          <Route path="/admin" element={
-            <ProtectedRoute role="admin">
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="foods" element={<ManageFoods />} />
-            <Route path="orders" element={<ManageOrders />} />
-            <Route path="history" element={<OrderHistory />} />
-            <Route path="birthday-requests" element={<BirthdayRequests />} />
-          </Route>
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-    </ErrorBoundary>
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="foods" element={<ManageFoods />} />
+              <Route path="orders" element={<ManageOrders />} />
+              <Route path="history" element={<OrderHistory />} />
+              <Route path="birthday-requests" element={<BirthdayRequests />} />
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </ErrorBoundary>
+    </ThemeProvider>
   )
 }
 
