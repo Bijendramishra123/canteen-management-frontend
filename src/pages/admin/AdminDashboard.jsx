@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { ordersApi } from '../../api/endpoints/orders'
-import { menuApi } from '../../api/endpoints/menu'
+import axios from 'axios'
 import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, FiClock, FiCheckCircle, FiCalendar, FiDownload } from 'react-icons/fi'
+
+const API_URL = 'https://canteen-management-backend-vj7n.onrender.com/api'
 
 const AdminDashboard = () => {
   const { data: orders = [], isLoading: ordersLoading, refetch: refetchOrders } = useQuery({
@@ -26,14 +26,12 @@ const AdminDashboard = () => {
   const preparingOrders = orders.filter(order => order.status === 'preparing').length
   const completedOrders = orders.filter(order => order.status === 'delivered').length
   
-  // Get unique customers
   const uniqueCustomers = new Set()
   orders.forEach(order => {
     if (order.customer_email) uniqueCustomers.add(order.customer_email)
   })
   const totalCustomers = uniqueCustomers.size
 
-  // Today's orders
   const today = new Date().toDateString()
   const todayOrders = orders.filter(order => {
     const orderDate = new Date(order.created_at).toDateString()
@@ -42,198 +40,15 @@ const AdminDashboard = () => {
   const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
 
   const stats = [
-    { 
-      title: 'Total Orders', 
-      value: orders.length, 
-      icon: FiPackage, 
-      bgColor: 'bg-blue-100', 
-      textColor: 'text-blue-600',
-      change: orders.length > 0 ? '+12%' : '0%'
-    },
-    { 
-      title: 'Pending Orders', 
-      value: pendingOrders, 
-      icon: FiClock, 
-      bgColor: 'bg-yellow-100', 
-      textColor: 'text-yellow-600',
-      change: pendingOrders > 0 ? `${Math.round((pendingOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Preparing', 
-      value: preparingOrders, 
-      icon: FiTrendingUp, 
-      bgColor: 'bg-purple-100', 
-      textColor: 'text-purple-600',
-      change: preparingOrders > 0 ? `${Math.round((preparingOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Completed', 
-      value: completedOrders, 
-      icon: FiCheckCircle, 
-      bgColor: 'bg-green-100', 
-      textColor: 'text-green-600',
-      change: completedOrders > 0 ? `${Math.round((completedOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Food Items', 
-      value: foods.length, 
-      icon: FiMenu, 
-      bgColor: 'bg-orange-100', 
-      textColor: 'text-orange-600',
-      change: foods.length > 0 ? 'Active' : 'No items'
-    },
-    { 
-      title: 'Total Customers', 
-      value: totalCustomers, 
-      icon: FiUsers, 
-      bgColor: 'bg-indigo-100', 
-      textColor: 'text-indigo-600',
-      change: totalCustomers > 0 ? `${totalCustomers} unique` : '0'
-    },
-    { 
-      title: 'Today\'s Revenue', 
-      value: `₹${todayRevenue.toLocaleString()}`, 
-      icon: FiDollarSign, 
-      bgColor: 'bg-emerald-100', 
-      textColor: 'text-emerald-600',
-      change: todayOrders.length > 0 ? `${todayOrders.length} orders` : 'No orders'
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import axios from 'axios'
-import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, FiClock, FiCheckCircle, FiCalendar, FiDownload } from 'react-icons/fi'
-
-// Direct API URL
-const API_URL = 'https://canteen-management-backend-vj7n.onrender.com/api'
-
-const AdminDashboard = () => {
-  const [orders, setOrders] = useState([])
-  const [foods, setFoods] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem('access_token')
-      const headers = { Authorization: `Bearer ${token}` }
-      
-      const [ordersRes, foodsRes] = await Promise.all([
-        axios.get(`${API_URL}/orders`, { headers }),
-        axios.get(`${API_URL}/foods`, { headers })
-      ])
-      
-      setOrders(ordersRes.data)
-      setFoods(foodsRes.data)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Calculate real stats from database
-  const totalRevenue = orders
-    .filter(order => order.status === 'delivered')
-    .reduce((sum, order) => sum + (order.total_amount || 0), 0)
-  
-  const pendingOrders = orders.filter(order => order.status === 'pending').length
-  const preparingOrders = orders.filter(order => order.status === 'preparing').length
-  const completedOrders = orders.filter(order => order.status === 'delivered').length
-  
-  // Get unique customers
-  const uniqueCustomers = new Set()
-  orders.forEach(order => {
-    if (order.customer_email) uniqueCustomers.add(order.customer_email)
-  })
-  const totalCustomers = uniqueCustomers.size
-
-  // Today's orders
-  const today = new Date().toDateString()
-  const todayOrders = orders.filter(order => {
-    const orderDate = new Date(order.created_at).toDateString()
-    return orderDate === today
-  })
-  const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0)
-
-  const stats = [
-    { 
-      title: 'Total Orders', 
-      value: orders.length, 
-      icon: FiPackage, 
-      bgColor: 'bg-blue-100', 
-      textColor: 'text-blue-600',
-      change: orders.length > 0 ? '+12%' : '0%'
-    },
-    { 
-      title: 'Pending Orders', 
-      value: pendingOrders, 
-      icon: FiClock, 
-      bgColor: 'bg-yellow-100', 
-      textColor: 'text-yellow-600',
-      change: pendingOrders > 0 ? `${Math.round((pendingOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Preparing', 
-      value: preparingOrders, 
-      icon: FiTrendingUp, 
-      bgColor: 'bg-purple-100', 
-      textColor: 'text-purple-600',
-      change: preparingOrders > 0 ? `${Math.round((preparingOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Completed', 
-      value: completedOrders, 
-      icon: FiCheckCircle, 
-      bgColor: 'bg-green-100', 
-      textColor: 'text-green-600',
-      change: completedOrders > 0 ? `${Math.round((completedOrders/orders.length)*100)}%` : '0%'
-    },
-    { 
-      title: 'Food Items', 
-      value: foods.length, 
-      icon: FiMenu, 
-      bgColor: 'bg-orange-100', 
-      textColor: 'text-orange-600',
-      change: foods.length > 0 ? 'Active' : 'No items'
-    },
-    { 
-      title: 'Total Customers', 
-      value: totalCustomers, 
-      icon: FiUsers, 
-      bgColor: 'bg-indigo-100', 
-      textColor: 'text-indigo-600',
-      change: totalCustomers > 0 ? `${totalCustomers} unique` : '0'
-    },
-    { 
-      title: 'Today\'s Revenue', 
-      value: `₹${todayRevenue.toLocaleString()}`, 
-      icon: FiDollarSign, 
-      bgColor: 'bg-emerald-100', 
-      textColor: 'text-emerald-600',
-      change: todayOrders.length > 0 ? `${todayOrders.length} orders` : 'No orders'
-    },
-    { 
-      title: 'Total Revenue', 
-      value: `₹${totalRevenue.toLocaleString()}`, 
-      icon: FiDollarSign, 
-      bgColor: 'bg-green-100', 
-      textColor: 'text-green-600',
-      change: totalRevenue > 0 ? 'Lifetime' : '₹0'
-    },
+    { title: 'Total Orders', value: orders.length, icon: FiPackage, bgColor: 'bg-blue-100', textColor: 'text-blue-600' },
+    { title: 'Pending Orders', value: pendingOrders, icon: FiClock, bgColor: 'bg-yellow-100', textColor: 'text-yellow-600' },
+    { title: 'Preparing', value: preparingOrders, icon: FiTrendingUp, bgColor: 'bg-purple-100', textColor: 'text-purple-600' },
+    { title: 'Completed', value: completedOrders, icon: FiCheckCircle, bgColor: 'bg-green-100', textColor: 'text-green-600' },
+    { title: 'Food Items', value: foods.length, icon: FiMenu, bgColor: 'bg-orange-100', textColor: 'text-orange-600' },
+    { title: 'Total Customers', value: totalCustomers, icon: FiUsers, bgColor: 'bg-indigo-100', textColor: 'text-indigo-600' },
+    { title: "Today's Revenue", value: `₹${todayRevenue}`, icon: FiDollarSign, bgColor: 'bg-emerald-100', textColor: 'text-emerald-600' },
+    { title: 'Total Revenue', value: `₹${totalRevenue}`, icon: FiDollarSign, bgColor: 'bg-green-100', textColor: 'text-green-600' },
   ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  }
 
   if (loading) {
     return (
@@ -247,82 +62,39 @@ const AdminDashboard = () => {
   }
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-6"
-    >
-      <motion.div variants={itemVariants} className="flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Welcome back! Here's what's happening with your canteen today.
-          </p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Admin Dashboard</h1>
+          <p className="text-gray-500 mt-1">Welcome back! Here's what's happening with your canteen today.</p>
         </div>
         <div className="flex gap-3">
-          <Link 
-            to="/admin/history" 
-            className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
-          >
-            <FiCalendar /> View History
-          </Link>
-          <Link 
-            to="/admin/foods" 
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
-          >
-            <FiMenu /> Manage Foods
-          </Link>
-          <Link 
-            to="/admin/orders" 
-            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
-          >
-            <FiShoppingBag /> View Orders
-          </Link>
+          <Link to="/admin/history" className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"><FiCalendar /> View History</Link>
+          <Link to="/admin/foods" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"><FiMenu /> Manage Foods</Link>
+          <Link to="/admin/orders" className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all flex items-center gap-2"><FiShoppingBag /> View Orders</Link>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Stats Grid */}
-      <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition-all duration-300"
-          >
+          <div key={index} className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm">{stat.title}</p>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                <p className="text-xs text-gray-400 mt-1">{stat.change}</p>
-              </div>
-              <div className={`${stat.bgColor} p-3 rounded-full`}>
-                <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
-              </div>
+              <div><p className="text-gray-500 text-sm">{stat.title}</p><p className="text-2xl font-bold mt-1">{stat.value}</p></div>
+              <div className={`${stat.bgColor} p-3 rounded-full`}><stat.icon className={`w-5 h-5 ${stat.textColor}`} /></div>
             </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Recent Orders */}
-      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <FiTrendingUp className="text-blue-500" /> Recent Orders
-            </h2>
-            <p className="text-gray-500 text-sm mt-1">Latest 5 orders from customers</p>
           </div>
-          <Link to="/admin/orders" className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-            View All →
-          </Link>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div><h2 className="text-xl font-bold flex items-center gap-2"><FiTrendingUp className="text-blue-500" /> Recent Orders</h2><p className="text-gray-500 text-sm mt-1">Latest 5 orders from customers</p></div>
+          <Link to="/admin/orders" className="text-blue-500 hover:text-blue-600 text-sm font-medium">View All →</Link>
         </div>
         <div className="space-y-3">
           {orders.slice(0, 5).map((order, idx) => (
             <motion.div
-              key={order.id || idx}
+              key={order.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
@@ -351,12 +123,10 @@ const AdminDashboard = () => {
               </div>
             </motion.div>
           ))}
-          {orders.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No orders yet</div>
-          )}
+          {orders.length === 0 && <div className="text-center py-8 text-gray-500">No orders yet</div>}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }
 

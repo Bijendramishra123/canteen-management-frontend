@@ -9,6 +9,8 @@ import {
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
+const API_URL = 'https://canteen-management-backend-vj7n.onrender.com/api'
+
 const ManageFoods = () => {
   const [foods, setFoods] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -45,9 +47,10 @@ const ManageFoods = () => {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('access_token')
-      const response = await axios.get('http://localhost:8000/api/foods', {
+      const response = await axios.get(`${API_URL}/foods`, {
         headers: { Authorization: `Bearer ${token}` }
       })
+      console.log('Fetched foods:', response.data)
       setFoods(response.data)
     } catch (error) {
       console.error('Error fetching foods:', error)
@@ -61,23 +64,20 @@ const ManageFoods = () => {
     fetchFoods()
   }, [])
 
-  // Filter foods
-  const filteredFoods = foods.filter(food => {
-    const matchesSearch = searchTerm === '' || 
-      food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (food.description && food.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const toggleAvailability = async (foodId, currentStatus) => {
+    try {
+      const token = localStorage.getItem('access_token')
+      await axios.patch(`${API_URL}/foods/${foodId}/availability`, 
+        { availability: !currentStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      toast.success(`Item ${!currentStatus ? 'available' : 'unavailable'} now`)
+      fetchFoods()
+    } catch (error) {
+      toast.error('Failed to update availability')
+    }
+  }
 
-  // Pagination
-  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage)
-  const paginatedFoods = filteredFoods.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
-
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -100,14 +100,12 @@ const ManageFoods = () => {
       const token = localStorage.getItem('access_token')
       
       if (editingFood) {
-        // Update existing food
-        await axios.put(`http://localhost:8000/api/foods/${editingFood.id}`, foodData, {
+        await axios.put(`${API_URL}/foods/${editingFood.id}`, foodData, {
           headers: { Authorization: `Bearer ${token}` }
         })
         toast.success('Food item updated successfully!')
       } else {
-        // Create new food
-        await axios.post('http://localhost:8000/api/foods', foodData, {
+        await axios.post(`${API_URL}/foods`, foodData, {
           headers: { Authorization: `Bearer ${token}` }
         })
         toast.success('Food item added successfully!')
@@ -123,12 +121,11 @@ const ManageFoods = () => {
     }
   }
 
-  // Handle delete
   const handleDelete = async (food) => {
     if (!window.confirm(`Are you sure you want to delete "${food.name}"?`)) return
     try {
       const token = localStorage.getItem('access_token')
-      await axios.delete(`http://localhost:8000/api/foods/${food.id}`, {
+      await axios.delete(`${API_URL}/foods/${food.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       toast.success('Food deleted successfully')
@@ -138,7 +135,6 @@ const ManageFoods = () => {
     }
   }
 
-  // Handle edit
   const handleEdit = (food) => {
     setEditingFood(food)
     setFormData({
@@ -153,7 +149,6 @@ const ManageFoods = () => {
     setShowForm(true)
   }
 
-  // Handle image URL preview
   const handleImageUrlChange = (url) => {
     setFormData({ ...formData, image: url })
     if (url && (url.startsWith('http') || url.startsWith('/'))) {
@@ -162,6 +157,22 @@ const ManageFoods = () => {
       setImagePreview(null)
     }
   }
+
+  // Filter foods
+  const filteredFoods = foods.filter(food => {
+    const matchesSearch = searchTerm === '' || 
+      food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (food.description && food.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  // Pagination
+  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage)
+  const paginatedFoods = filteredFoods.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
   const containerVariants = {
     hidden: { opacity: 0 },
