@@ -7,17 +7,33 @@ import { FiPackage, FiMenu, FiUsers, FiDollarSign, FiShoppingBag, FiTrendingUp, 
 const API_URL = 'https://canteen-management-backend-vj7n.onrender.com/api'
 
 const AdminDashboard = () => {
-  const { data: orders = [], isLoading: ordersLoading, refetch: refetchOrders } = useQuery({
-    queryKey: ['all-orders'],
-    queryFn: () => ordersApi.getOrders().then(res => res.data)
-  })
-  
-  const { data: foods = [], isLoading: foodsLoading } = useQuery({
-    queryKey: ['all-foods'],
-    queryFn: () => menuApi.getFoods().then(res => res.data)
-  })
+  const [orders, setOrders] = useState([])
+  const [foods, setFoods] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Calculate real stats from database
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('access_token')
+      const headers = { Authorization: `Bearer ${token}` }
+      
+      const [ordersRes, foodsRes] = await Promise.all([
+        axios.get(`${API_URL}/orders`, { headers }),
+        axios.get(`${API_URL}/foods`, { headers })
+      ])
+      
+      setOrders(ordersRes.data)
+      setFoods(foodsRes.data)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const totalRevenue = orders
     .filter(order => order.status === 'delivered')
     .reduce((sum, order) => sum + (order.total_amount || 0), 0)
@@ -93,35 +109,10 @@ const AdminDashboard = () => {
         </div>
         <div className="space-y-3">
           {orders.slice(0, 5).map((order, idx) => (
-            <motion.div
-              key={order.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <FiShoppingBag className="text-blue-500" />
-                </div>
-                <div>
-                  <p className="font-semibold">Order #{order.id}</p>
-                  <p className="text-sm text-gray-500">{order.customer_name || 'Customer'}</p>
-                  <p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString()}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-blue-600">₹{order.total_amount}</p>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  order.status === 'delivered' ? 'bg-green-100 text-green-600' :
-                  order.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
-                  order.status === 'preparing' ? 'bg-purple-100 text-purple-600' :
-                  'bg-blue-100 text-blue-600'
-                }`}>
-                  {order.status}
-                </span>
-              </div>
-            </motion.div>
+            <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+              <div className="flex items-center gap-4"><div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"><FiShoppingBag className="text-blue-500" /></div><div><p className="font-semibold">Order #{order.id}</p><p className="text-sm text-gray-500">{order.customer_name || 'Customer'}</p><p className="text-xs text-gray-400">{new Date(order.created_at).toLocaleString()}</p></div></div>
+              <div className="text-right"><p className="font-bold text-blue-600">₹{order.total_amount}</p><span className={`text-xs px-2 py-1 rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-600' : order.status === 'pending' ? 'bg-yellow-100 text-yellow-600' : order.status === 'preparing' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>{order.status}</span></div>
+            </div>
           ))}
           {orders.length === 0 && <div className="text-center py-8 text-gray-500">No orders yet</div>}
         </div>
