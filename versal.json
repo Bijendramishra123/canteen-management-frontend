@@ -1,0 +1,10 @@
+{
+  "env": {
+    "VITE_API_URL": "https://canteen-management-backend-vj7n.onrender.com/api"
+  },
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://canteen-management-backend-vj7n.onrender.com/api"
+    }
+  }
+}
